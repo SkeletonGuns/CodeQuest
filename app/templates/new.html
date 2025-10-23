@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raw Entropy Collector Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; }
+        .progress-bar-fill { transition: width 0.3s ease-in-out; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#4f46e5',
+                        'secondary': '#f97316',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="p-4 sm:p-8 flex items-center justify-center min-h-screen">
+
+    <div id="app" class="w-full max-w-lg bg-white shadow-2xl rounded-xl p-6 sm:p-8">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-2 text-center">
+            Генератор Сырой Энтропии
+        </h1>
+        <p class="text-sm text-gray-500 mb-6 text-center">
+            Симуляция сбора 1024 байт через дифференциальную выборку LSB сенсоров.
+        </p>
+
+        <!-- Статус и кнопки управления -->
+        <div class="space-y-4 mb-6">
+            <div id="status-message" class="text-center font-semibold text-primary">
+                Ожидание запуска...
+            </div>
+
+            <button id="start-button" onclick="startCollection()"
+                    class="w-full py-3 px-4 bg-primary text-white font-bold rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 disabled:opacity-50">
+                Начать Сбор Энтропии
+            </button>
+            <button id="stop-button" onclick="stopCollection()" disabled
+                    class="w-full py-3 px-4 bg-secondary text-white font-bold rounded-lg shadow-md hover:bg-orange-600 transition duration-150 disabled:opacity-50">
+                Остановить
+            </button>
+        </div>
+
+        <!-- Визуализация буфера -->
+        <div class="bg-gray-100 p-4 rounded-lg shadow-inner">
+            <p class="font-semibold text-gray-700 mb-2">
+                Пул Сырой Энтропии (1024 байта)
+            </p>
+            <div class="h-8 mb-2 bg-gray-300 rounded-full overflow-hidden">
+                <div id="progress-fill" class="progress-bar-fill h-full bg-green-500 rounded-full" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-sm text-gray-600">
+                <span id="bytes-collected">0 / 1024 байт</span>
+                <span id="bits-collected">0 бит собрано</span>
+            </div>
+        </div>
+
+        <!-- Поле вывода результата -->
+        <div class="mt-6">
+            <p class="font-semibold text-gray-700 mb-2">
+                Собранная Сырая Энтропия (Hex)
+            </p>
+            <textarea id="entropy-output" readonly rows="5"
+                      class="w-full p-3 text-xs font-mono bg-gray-50 border border-gray-300 rounded-lg resize-none"></textarea>
+            <button id="copy-button" onclick="copyToClipboard()" disabled
+                    class="mt-2 w-full py-2 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition duration-150 disabled:opacity-50">
+                Скопировать в буфер обмена
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Константы
+        const POOL_SIZE = 1024; // 1024 байта
+        const MAX_BITS = POOL_SIZE * 8; // 8192 бита
+
+        // Переменные состояния
+        let entropyPool = new Uint8Array(POOL_SIZE).fill(0);
+        let bitCount = 0;
+        let isCollecting = false;
+
+        // Последние прочитанные значения для дифференциальной выборки
+        let lastReadings = {
+            accelX: 0, accelY: 0, accelZ: 0,
+            rotAlpha: 0, rotBeta: 0, rotGamma: 0
+        };
+
+        // DOM элементы
+        const statusMsg = document.getElementById('status-message');
+        const progressFill = document.getElementById('progress-fill');
+        const bytesCollectedSpan = document.getElementById('bytes-collected');
+        const bitsCollectedSpan = document.getElementById('bits-collected');
+        const startButton = document.getElementById('start-button');
+        const stopButton = document.getElementById('stop-button');
+        const entropyOutput = document.getElementById('entropy-output');
+        const copyButton = document.getElementById('copy-button');
+
+        // --- УТИЛИТАРНЫЕ ФУНКЦИИ ---
+
+        /**
+         * Обновляет UI для отображения текущего прогресса сбора.
+         */
+        function updateUI() {
+            const byteIndex = Math.floor(bitCount / 8);
+            const percentage = (bitCount / MAX_BITS) * 100;
+            const currentByteBits = bitCount % 8;
+
+            progressFill.style.width = `${percentage}%`;
+            bytesCollectedSpan.textContent = `${byteIndex} / ${POOL_SIZE} байт`;
+            bitsCollectedSpan.textContent = `${bitCount} бит собрано (текущий байт: ${currentByteBits}/8)`;
+
+            if (bitCount >= MAX_BITS) {
+                statusMsg.textContent = 'СБОР ЗАВЕРШЕН! Пул заполнен.';
+                statusMsg.classList.remove('text-primary');
+                statusMsg.classList.add('text-green-600');
+                stopCollection(true);
+                displayEntropy();
+            }
+        }
+
+        /**
+         * Извлекает LSB (младший бит) из дифференциального значения.
+         * @param {number} diff - Дифференциальное значение сенсора.
+         * @returns {number} 0 или 1.
+         */
+        function extractLSB(diff) {
+            // Используем Math.round, чтобы перейти от float к int, затем побитовое И для LSB.
+            return Math.abs(Math.round(diff)) & 1;
+        }
+
+        /**
+         * Добавляет один бит энтропии в пул.
+         * @param {number} bit - Бит (0 или 1).
+         */
+        function addBitToPool(bit) {
+            if (bitCount >= MAX_BITS) return;
+
+            const byteIndex = Math.floor(bitCount / 8);
+            const bitPosition = bitCount % 8;
+
+            // Сдвигаем текущий байт влево и добавляем новый бит.
+            // Примечание: В реальном приложении для повышения качества энтропии
+            // обычно используют XOR для смешивания с предыдущими данными,
+            // но для следования плану ("Конкатенируйте") мы просто заполняем.
+
+            // Если это новый байт, начинаем с 0. Иначе сдвигаем влево.
+            if (bitPosition === 0) {
+                 // Начинаем с нового байта, бит будет самым правым (LSB).
+                 entropyPool[byteIndex] = bit;
+            } else {
+                 // Сдвигаем существующий байт влево и добавляем новый бит (конкатенация).
+                 entropyPool[byteIndex] = (entropyPool[byteIndex] << 1) | bit;
+            }
+
+            bitCount++;
+            updateUI();
+        }
+
+        // --- ЛОГИКА СБОРА ДАННЫХ С СЕНСОРОВ ---
+
+        /**
+         * Основной обработчик событий сенсоров (DeviceMotion API).
+         * Имитирует SensorEventListener Android.
+         * @param {DeviceMotionEvent} event
+         */
+        function handleMotion(event) {
+            if (!isCollecting || bitCount >= MAX_BITS) return;
+
+            // 1. Сбор показаний сенсоров
+            const current = {
+                accelX: event.acceleration.x,
+                accelY: event.acceleration.y,
+                accelZ: event.acceleration.z,
+                rotAlpha: event.rotationRate ? event.rotationRate.alpha : 0, // Гироскоп
+                rotBeta: event.rotationRate ? event.rotationRate.beta : 0,
+                rotGamma: event.rotationRate ? event.rotationRate.gamma : 0
+            };
+
+            // Проверка на null/undefined показания, которые могут быть в браузере
+            if (current.accelX === null) return;
+
+            // 2. Дифференциальная Выборка и Извлечение LSB
+
+            // Ось X Акселерометра
+            const diffX = current.accelX - lastReadings.accelX;
+            addBitToPool(extractLSB(diffX));
+
+            // Ось Y Акселерометра
+            const diffY = current.accelY - lastReadings.accelY;
+            addBitToPool(extractLSB(diffY));
+
+            // Ось Z Акселерометра
+            const diffZ = current.accelZ - lastReadings.accelZ;
+            addBitToPool(extractLSB(diffZ));
+
+            // Ось Alpha Гироскопа
+            const diffRotAlpha = current.rotAlpha - lastReadings.rotAlpha;
+            addBitToPool(extractLSB(diffRotAlpha));
+
+            // Обновление последних показаний
+            lastReadings = current;
+        }
+
+        // --- УПРАВЛЕНИЕ СБОРОМ ---
+
+        /**
+         * Запускает процесс сбора энтропии.
+         */
+        function startCollection() {
+            if (isCollecting) return;
+
+            // Сброс состояния для нового запуска
+            entropyPool.fill(0);
+            bitCount = 0;
+            isCollecting = true;
+
+            statusMsg.textContent = 'Сбор активен... Двигайте устройством!';
+            statusMsg.classList.remove('text-green-600');
+            statusMsg.classList.add('text-primary');
+
+            startButton.disabled = true;
+            stopButton.disabled = false;
+            entropyOutput.value = '';
+            copyButton.disabled = true;
+
+            // Проверка доступа к сенсорам (нужно для iOS/Safair)
+            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission().then(permissionState => {
+                    if (permissionState === 'granted') {
+                        window.addEventListener('devicemotion', handleMotion, true);
+                    } else {
+                        statusMsg.textContent = 'Доступ к сенсорам отклонен. Невозможно начать.';
+                        statusMsg.classList.remove('text-primary');
+                        statusMsg.classList.add('text-red-500');
+                        isCollecting = false;
+                        startButton.disabled = false;
+                        stopButton.disabled = true;
+                    }
+                }).catch(console.error);
+            } else {
+                // Для Android Chrome и других браузеров
+                window.addEventListener('devicemotion', handleMotion, true);
+            }
+            updateUI();
+        }
+
+        /**
+         * Останавливает процесс сбора энтропии.
+         * @param {boolean} [completed=false] - Указывает, остановлено ли из-за завершения сбора.
+         */
+        function stopCollection(completed = false) {
+            if (!isCollecting) return;
+
+            window.removeEventListener('devicemotion', handleMotion, true);
+            isCollecting = false;
+
+            startButton.disabled = false;
+            stopButton.disabled = true;
+            copyButton.disabled = false;
+
+            if (!completed) {
+                statusMsg.textContent = 'Сбор приостановлен. Нажмите "Начать" для продолжения.';
+                statusMsg.classList.remove('text-green-600');
+                statusMsg.classList.add('text-secondary');
+            }
+        }
+
+        /**
+         * Преобразует пул энтропии в строку Hex.
+         */
+        function displayEntropy() {
+            const hexArray = Array.from(entropyPool)
+                .map(byte => byte.toString(16).padStart(2, '0'));
+
+            // Выводим только заполненную часть, если не завершено
+            const endIndex = Math.ceil(bitCount / 8);
+            entropyOutput.value = hexArray.slice(0, endIndex).join('');
+        }
+
+        /**
+         * Копирует результат в буфер обмена.
+         */
+        function copyToClipboard() {
+            const text = entropyOutput.value;
+            if (text) {
+                // Использование document.execCommand('copy') для совместимости с iframe
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    copyButton.textContent = 'Скопировано!';
+                } catch (err) {
+                    console.error('Не удалось скопировать текст: ', err);
+                }
+                document.body.removeChild(textArea);
+
+                setTimeout(() => copyButton.textContent = 'Скопировать в буфер обмена', 2000);
+            }
+        }
+    </script>
+</body>
+</html>

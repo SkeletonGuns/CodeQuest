@@ -1,0 +1,156 @@
+@app.post("/api/tasks/submit/{task_id}")
+async def submit_task_solution(
+        task_id: int,
+        request: Request,
+        user: models.User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    """
+    Принимает код пользователя, запускает его с тестовыми кейсами задачи,
+    и проверяет результат. Если все тесты пройдены, завершает задачу.
+    """
+    try:
+        data = await request.json()
+    except:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Неверный формат JSON')
+
+    user_code = data.get('code', '')
+    language = data.get('language', '').lower()
+
+    if not user_code:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Код пустой')
+
+    task = crud.get_task_by_id(db, task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Задача не найдена")
+
+    if language != task.language.lower():
+        # Можно сделать более мягкую проверку, но для простоты:
+        return JSONResponse(
+            {'success': False, 'output': f"Язык кода '{language}' не соответствует языку задачи '{task.language}'"},
+            status_code=status.HTTP_400_BAD_REQUEST)
+
+    # 1. Парсинг тестовых кейсов
+    try:
+        # Предполагаем, что test_cases - это JSON строка с массивом тестов.
+        # Например: [{"input": "2, 3", "expected": "5"}, ...]
+        import json
+        test_cases = json.loads(task.test_cases)
+    except Exception:
+        return JSONResponse({'success': False, 'output': 'Ошибка: Неверный формат тестовых кейсов в задаче.'},
+                            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    results = []
+    all_passed = True
+
+    # 2. Запуск кода с каждым тестом (пример для Python, нужно адаптировать для других языков)
+    if language == 'python':
+        # Для простоты, мы предполагаем, что test_cases содержат вызов функции,
+        # и код должен содержать определение этой функции.
+        user_code = data.get('code', '')
+        # ...
+
+        # !!! Добавьте это:
+        import logging
+        logging.warning(f"Код пользователя, отправленный на проверку:\n{user_code}")
+        # Создаем временный файл с кодом пользователя + вызовами тестов
+        temp_dir = tempfile.mkdtemp()
+        temp_file_path = Path(temp_dir) / 'solution.py'
+
+        try:
+            with open(temp_file_path, 'w', encoding='utf-8') as temp_file:
+                temp_file.write(user_code)
+                temp_file.write("\n\n# --- Тесты ---\n")
+                temp_file.write("import json\n")
+
+                # Добавляем логику для выполнения тестов и вывода результата
+                for i, test in enumerate(test_cases):
+                    test_input = test.get("input", "")
+                    expected_output = str(test.get("expected", ""))
+
+                    temp_file.write(f"\nprint(f\"__TEST_START__{i}\")\n")
+                    temp_file.write(f"try:\n")
+
+                    # ИСПРАВЛЕНИЕ: Используем repr() для надежного строкового представления результата
+                    temp_file.write(f"    result_value = {test_input}\n")
+                    temp_file.write(f"    result = str(result_value)\n")
+
+                    # Стандартный str() должен быть достаточен, но repr() более точен для отладки
+                    # temp_file.write(f"    result = str({test_input})\n")
+
+                    temp_file.write(f"    print(f\"__RESULT__:{i}:{result}\")\n")
+                    temp_file.write(f"    print(f\"__EXPECTED__:{i}:{expected_output}\")\n")
+                    temp_file.write(f"except Exception as e:\n")
+                    temp_file.write(
+                        f"    import traceback; traceback.print_exc(file=sys.stdout)\n")  # Более полное логирование ошибки
+                    temp_file.write(f"    print(f\"__ERROR__:{i}:{e}\")\n")
+                    temp_file.write(f"print(f\"__TEST_END__{i}\")\n")
+
+            # Запуск Python скрипта
+            process = subprocess.run(
+                ['python', str(temp_file_path)],
+                capture_output=True,
+                text=True,
+                encoding='latin-1',
+                timeout=10,  # Увеличим тайм-аут для тестов
+                env = dict(os.environ, PYTHONIOENCODING='utf-8'),
+            )
+            raw_output = process.stdout if process.stdout is not None else ""
+            raw_error = process.stderr if process.stderr is not None else ""
+
+            if process.returncode != 0:
+                # Общая ошибка выполнения (синтаксис, исключение вне тестов)
+                all_passed = False
+                results.append({"test_id": "all", "passed": False, "message": f"Ошибка выполнения кода:\n{raw_error}"})
+            else:
+                # 3. Парсинг вывода для проверки тестов
+                for i, test in enumerate(test_cases):
+                    expected_output = str(test.get("expected", ""))
+
+                    # Поиск результата
+                    result_match = re.search(f'__RESULT__:{i}:(.*)', raw_output)
+                    error_match = re.search(f'__ERROR__:{i}:(.*)', raw_output)
+
+                    if error_match:
+                        all_passed = False
+                        results.append({"test_id": i + 1, "passed": False,
+                                        "message": f"Ошибка в тесте {i + 1}: {error_match.group(1)}"})
+                        continue
+
+                    if result_match:
+                        actual_output = result_match.group(1).strip()
+                        if actual_output == expected_output:
+                            results.append({"test_id": i + 1, "passed": True, "message": "Тест пройден"})
+                        else:
+                            all_passed = False
+                            results.append({"test_id": i + 1, "passed": False,
+                                            "message": f"Тест не пройден. Ожидалось: '{expected_output}', Получено: '{actual_output}'"})
+                    else:
+                        all_passed = False
+                        results.append({"test_id": i + 1, "passed": False,
+                                        "message": "Не удалось захватить результат выполнения теста"})
+
+        finally:
+            # Очистка временных файлов
+            shutil.rmtree(temp_dir)
+
+    # Добавьте логику для других языков (JavaScript, C++, Java) здесь
+
+    else:
+        # Для других языков пока не реализовано
+        return JSONResponse({'success': False, 'output': 'Тестирование для этого языка пока не реализовано'},
+                            status_code=status.HTTP_501_NOT_IMPLEMENTED)
+
+    # 4. Завершение задачи, если все тесты пройдены
+    if all_passed:
+        complete_result = crud.complete_task(db, task_id, user.id)
+        if complete_result["success"]:
+            message = f"Все тесты пройдены! Задача завершена. Начислено {task.xp_reward} XP."
+            return JSONResponse({"success": True, "message": message, "results": results},
+                                status_code=status.HTTP_200_OK)
+        else:
+            return JSONResponse({"success": True, "message": f"Все тесты пройдены, но {complete_result['message']}",
+                                 "results": results}, status_code=status.HTTP_200_OK)
+    else:
+        return JSONResponse({"success": False, "message": "Не все тесты пройдены.", "results": results},
+                            status_code=status.HTTP_200_OK)

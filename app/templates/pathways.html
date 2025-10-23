@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeQuest - Пути обучения</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles/main.css">
+    <style>
+        .pathway-progress {
+            height: 8px;
+            background-color: var(--gray-light);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .pathway-progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border-radius: 4px;
+            transition: width 0.5s;
+        }
+        
+        .module-card {
+            border: 2px solid var(--gray-light);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+            background: white;
+            color: var(--dark);
+        }
+        
+        .module-card:hover {
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+        
+        .module-card.completed {
+            border-color: var(--success);
+            background-color: rgba(25, 135, 84, 0.05);
+        }
+        
+        .module-card.current {
+            border-color: var(--warning);
+            background-color: rgba(255, 193, 7, 0.05);
+        }
+        
+        .roadmap {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .roadmap::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--primary);
+        }
+        
+        .roadmap-item {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        
+        .roadmap-item::before {
+            content: '';
+            position: absolute;
+            left: -23px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+        
+        .roadmap-item.completed::before {
+            background: var(--success);
+            box-shadow: 0 0 0 2px var(--success);
+        }
+        
+        .roadmap-item.current::before {
+            background: var(--warning);
+            box-shadow: 0 0 0 2px var(--warning);
+            animation: pulse 2s infinite;
+        }
+
+        /* Обновленные стили для карточек с белым фоном */
+        .pathway-card {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            transition: var(--transition);
+            height: 100%;
+            color: var(--dark);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pathway-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .pathway-header {
+            padding: 1.5rem;
+            color: white;
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .pathway-header h5 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+        }
+
+        .pathway-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        .pathway-body {
+            padding: 1.5rem;
+            color: var(--dark);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pathway-body p {
+            color: var(--gray-dark);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            flex: 1;
+        }
+
+        .pathway-body .badge {
+            font-size: 0.75rem;
+        }
+
+        .pathway-buttons {
+            margin-top: auto;
+            padding-top: 1rem;
+        }
+
+        /* Стили для дорожной карты с белым фоном */
+        .roadmap-card {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            color: var(--dark);
+        }
+
+        .roadmap-card .card-header {
+            background: white;
+            border-bottom: 1px solid var(--gray-light);
+            padding: 1.5rem;
+        }
+
+        .roadmap-card .card-header h4 {
+            color: var(--dark);
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .roadmap-card .card-body {
+            padding: 2rem;
+            color: var(--dark);
+        }
+
+        .roadmap-item h5 {
+            color: var(--dark);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        /* Стили для рекомендаций с белым фоном */
+        .recommendations-card {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            color: var(--dark);
+        }
+
+        .recommendations-card .card-header {
+            background: white;
+            border-bottom: 1px solid var(--gray-light);
+            padding: 1.5rem;
+        }
+
+        .recommendations-card .card-header h5 {
+            color: var(--dark);
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .recommendations-card .card-body {
+            padding: 1.5rem;
+            color: var(--dark);
+        }
+
+        .recommendation-card {
+            background: var(--light);
+            border: 1px solid var(--gray-light);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            height: 100%;
+            color: var(--dark);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .recommendation-card h6 {
+            color: var(--dark);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .recommendation-card p {
+            color: var(--gray-dark);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            flex: 1;
+        }
+
+        .recommendation-buttons {
+            margin-top: auto;
+        }
+
+        /* Белый текст для кнопки "Назад в кабинет" без границы */
+        .nav-link-back {
+            color: white !important;
+            border-radius: var(--border-radius);
+            padding: 0.5rem 1rem !important;
+            transition: var(--transition);
+            background: transparent;
+            border: none;
+        }
+
+        .nav-link-back:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            color: white !important;
+        }
+
+        /* Улучшенные отступы */
+        .pathway-body > * {
+            margin-bottom: 1rem;
+        }
+
+        .pathway-body > *:last-child {
+            margin-bottom: 0;
+        }
+
+        .module-card > * {
+            margin-bottom: 0.5rem;
+        }
+
+        .module-card > *:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Выравнивание заголовка */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        /* Анимация пульсации */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+            }
+        }
+
+        /* Гарантия одинаковой высоты заголовков карточек */
+        .pathway-cards-container .pathway-header {
+            height: 120px;
+        }
+
+        /* Стили для нового футера как в главной странице */
+        .footer-custom {
+            background: var(--darker);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4rem 0 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-nav a {
+            color: var(--light) !important;
+            opacity: 0.9;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .footer-nav a:hover {
+            opacity: 1;
+            color: white !important;
+            text-decoration: underline !important;
+        }
+
+        .footer-social .btn-glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: var(--transition);
+        }
+
+        .footer-social .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-code me-2"></i>CodeQuest
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link nav-link-back" href="/profile">
+                    <i class="fas fa-arrow-left me-2"></i>Назад в кабинет
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Заголовок -->
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-12">
+                <div class="page-header">
+                    <h1 class="section-title">Пути обучения</h1>
+                    <p class="lead">Выберите специализацию и следуйте персонализированному плану обучения</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Карточки путей обучения -->
+    <div class="container my-5">
+        <div class="row g-4 pathway-cards-container">
+            <div class="col-md-6 col-lg-3">
+                <div class="pathway-card">
+                    <div class="pathway-header" style="background: linear-gradient(135deg, #6f42c1, #20c997);">
+                        <h5>Frontend разработка</h5>
+                        <p class="mb-0">Создание пользовательских интерфейсов</p>
+                    </div>
+                    <div class="pathway-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span style="color: var(--gray-dark);">Сложность:</span>
+                            <span class="badge bg-success">Начальный</span>
+                        </div>
+                        <div class="pathway-progress">
+                            <div class="pathway-progress-bar" style="width: 65%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <small style="color: var(--gray-dark);">Прогресс</small>
+                            <small style="color: var(--gray-dark);">65%</small>
+                        </div>
+                        <p>HTML, CSS, JavaScript, React, Vue.js</p>
+                        <div class="pathway-buttons d-grid gap-2">
+                            <a href="#frontend-roadmap" class="btn btn-primary">Продолжить</a>
+                            <button class="btn btn-outline-primary" onclick="showPathwayDetails('frontend')">Подробнее</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="pathway-card">
+                    <div class="pathway-header" style="background: linear-gradient(135deg, #fd7e14, #e83e8c);">
+                        <h5>Backend разработка</h5>
+                        <p class="mb-0">Серверная часть приложений</p>
+                    </div>
+                    <div class="pathway-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span style="color: var(--gray-dark);">Сложность:</span>
+                            <span class="badge bg-warning">Средний</span>
+                        </div>
+                        <div class="pathway-progress">
+                            <div class="pathway-progress-bar" style="width: 20%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <small style="color: var(--gray-dark);">Прогресс</small>
+                            <small style="color: var(--gray-dark);">20%</small>
+                        </div>
+                        <p>Python, Node.js, базы данных, API</p>
+                        <div class="pathway-buttons d-grid gap-2">
+                            <a href="#backend-roadmap" class="btn btn-primary">Начать</a>
+                            <button class="btn btn-outline-primary" onclick="showPathwayDetails('backend')">Подробнее</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="pathway-card">
+                    <div class="pathway-header" style="background: linear-gradient(135deg, #20c997, #0dcaf0);">
+                        <h5>Data Science</h5>
+                        <p class="mb-0">Анализ данных и машинное обучение</p>
+                    </div>
+                    <div class="pathway-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span style="color: var(--gray-dark);">Сложность:</span>
+                            <span class="badge bg-danger">Продвинутый</span>
+                        </div>
+                        <div class="pathway-progress">
+                            <div class="pathway-progress-bar" style="width: 0%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <small style="color: var(--gray-dark);">Прогресс</small>
+                            <small style="color: var(--gray-dark);">0%</small>
+                        </div>
+                        <p>Python, анализ данных, визуализация, ML</p>
+                        <div class="pathway-buttons d-grid gap-2">
+                            <button class="btn btn-primary" onclick="startPathway('datascience')">Начать</button>
+                            <button class="btn btn-outline-primary" onclick="showPathwayDetails('datascience')">Подробнее</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="pathway-card">
+                    <div class="pathway-header" style="background: linear-gradient(135deg, #ffc107, #fd7e14);">
+                        <h5>Мобильная разработка</h5>
+                        <p class="mb-0">Создание приложений для iOS и Android</p>
+                    </div>
+                    <div class="pathway-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span style="color: var(--gray-dark);">Сложность:</span>
+                            <span class="badge bg-warning">Средний</span>
+                        </div>
+                        <div class="pathway-progress">
+                            <div class="pathway-progress-bar" style="width: 0%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <small style="color: var(--gray-dark);">Прогресс</small>
+                            <small style="color: var(--gray-dark);">0%</small>
+                        </div>
+                        <p>React Native, Flutter, нативные технологии</p>
+                        <div class="pathway-buttons d-grid gap-2">
+                            <button class="btn btn-primary" onclick="startPathway('mobile')">Начать</button>
+                            <button class="btn btn-outline-primary" onclick="showPathwayDetails('mobile')">Подробнее</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Дорожная карта Frontend -->
+    <div class="container my-5" id="frontend-roadmap">
+        <div class="row">
+            <div class="col-12">
+                <div class="roadmap-card">
+                    <div class="card-header">
+                        <h4 class="mb-0">🚀 Frontend разработка - Дорожная карта</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="roadmap">
+                            <!-- Основы -->
+                            <div class="roadmap-item completed">
+                                <h5>Основы веб-разработки</h5>
+                                <div class="module-card completed">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">HTML & CSS</h6>
+                                            <p class="mb-0 small">Структура веб-страниц и стилизация</p>
+                                        </div>
+                                        <span class="badge bg-success">Завершено</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- JavaScript -->
+                            <div class="roadmap-item current">
+                                <h5>JavaScript и интерактивность</h5>
+                                <div class="module-card current">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">Основы JavaScript</h6>
+                                            <p class="mb-0 small">Переменные, функции, DOM-манипуляции</p>
+                                        </div>
+                                        <span class="badge bg-warning">В процессе</span>
+                                    </div>
+                                    <div class="pathway-progress mt-2">
+                                        <div class="pathway-progress-bar" style="width: 40%"></div>
+                                    </div>
+                                    <small style="color: var(--gray-dark);">2 из 5 модулей завершено</small>
+                                </div>
+                                
+                                <div class="module-card">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">Продвинутый JavaScript</h6>
+                                            <p class="mb-0 small">Асинхронное программирование, ES6+</p>
+                                        </div>
+                                        <span class="badge bg-secondary">Не начато</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Фреймворки -->
+                            <div class="roadmap-item">
+                                <h5>Современные фреймворки</h5>
+                                <div class="module-card">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">React</h6>
+                                            <p class="mb-0 small">Компонентный подход и хуки</p>
+                                        </div>
+                                        <span class="badge bg-secondary">Не начато</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="module-card">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">Vue.js</h6>
+                                            <p class="mb-0 small">Альтернативный подход к фронтенду</p>
+                                        </div>
+                                        <span class="badge bg-secondary">Не начато</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Инструменты -->
+                            <div class="roadmap-item">
+                                <h5>Инструменты и оптимизация</h5>
+                                <div class="module-card">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">Webpack & Vite</h6>
+                                            <p class="mb-0 small">Сборка и оптимизация проектов</p>
+                                        </div>
+                                        <span class="badge bg-secondary">Не начато</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="module-card">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">Тестирование</h6>
+                                            <p class="mb-0 small">Jest, Cypress, unit-тесты</p>
+                                        </div>
+                                        <span class="badge bg-secondary">Не начато</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Рекомендации ИИ -->
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-12">
+                <div class="recommendations-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-robot me-2"></i>Персональные рекомендации</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="recommendation-card">
+                                    <h6>💡 Основано на вашем прогрессе</h6>
+                                    <p class="small mb-2">Рекомендуем уделить больше времени асинхронному программированию в JavaScript - это ключевой навык для Frontend разработчика.</p>
+                                    <div class="recommendation-buttons">
+                                        <button class="btn btn-sm btn-outline-primary w-100">Изучить тему</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="recommendation-card">
+                                    <h6>🎯 Для ускорения роста</h6>
+                                    <p class="small mb-2">Попробуйте решить 2-3 задачи на алгоритмы ежедневно. Это улучшит ваше логическое мышление.</p>
+                                    <div class="recommendation-buttons">
+                                        <a href="/challenges" class="btn btn-sm btn-outline-primary w-100">К задачам</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Футер как в главной странице -->
+    <footer class="footer-custom">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-code me-2"></i>CodeQuest
+                    </h5>
+                    <p class="opacity-75">
+                        Премиум платформа для обучения программированию через геймификацию. 
+                        Превращаем сложное в увлекательное.
+                    </p>
+                    <div class="d-flex gap-3 footer-social">
+                        <a href="#" class="btn btn-glass btn-sm">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="btn btn-glass btn-sm">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="btn btn-glass btn-sm">
+                            <i class="fab fa-discord"></i>
+                        </a>
+                        <a href="#" class="btn btn-glass btn-sm">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h6 class="mb-3">Навигация</h6>
+                    <ul class="list-unstyled footer-nav">
+                        <li class="mb-2"><a href="/" class="text-decoration-none">Главная</a></li>
+                        <li class="mb-2"><a href="/pathways" class="text-decoration-none">Обучение</a></li>
+                        <li class="mb-2"><a href="/challenges" class="text-decoration-none">Практика</a></li>
+                        <li class="mb-2"><a href="/community" class="text-decoration-none">Сообщество</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h6 class="mb-3">Ресурсы</h6>
+                    <ul class="list-unstyled footer-nav">
+                        <li class="mb-2"><a href="/knowledge" class="text-decoration-none">База знаний</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none">Блог</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none">Документация</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none">Поддержка</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h6 class="mb-3">Оставайтесь в курсе</h6>
+                    <p class="opacity-75 small mb-3">
+                        Подпишитесь на рассылку для получения новых задач и обновлений
+                    </p>
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="Ваш email">
+                        <button class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4 opacity-25">
+            <div class="text-center">
+                <p class="mb-0 opacity-75">
+                    &copy; 2025 CodeQuest. Сделано с ❤️ для разработчиков
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Модальное окно выбора пути -->
+    <div class="modal fade" id="pathwayModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pathwayModalTitle">Выбор пути обучения</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="pathwayModalContent">
+                        <!-- Контент будет заполнен JavaScript -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmPathwaySelection()">Выбрать этот путь</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const pathwayDetails = {
+            frontend: {
+                title: "Frontend разработка",
+                description: "Научитесь создавать современные пользовательские интерфейсы для веб-приложений.",
+                duration: "4-6 месяцев",
+                skills: ["HTML5 & CSS3", "JavaScript ES6+", "React/Vue.js", "Responsive Design", "Web Performance"],
+                salary: "от 80,000 ₽",
+                demand: "Высокий"
+            },
+            backend: {
+                title: "Backend разработка",
+                description: "Освойте серверную часть веб-приложений, работу с базами данных и API.",
+                duration: "6-8 месяцев",
+                skills: ["Python/Node.js", "Базы данных", "REST API", "Авторизация", "DevOps основы"],
+                salary: "от 100,000 ₽",
+                demand: "Очень высокий"
+            },
+            datascience: {
+                title: "Data Science",
+                description: "Станьте специалистом по анализу данных и машинному обучению.",
+                duration: "8-12 месяцев",
+                skills: ["Python", "Pandas & NumPy", "Машинное обучение", "Визуализация", "Статистика"],
+                salary: "от 120,000 ₽",
+                demand: "Растущий"
+            },
+            mobile: {
+                title: "Мобильная разработка",
+                description: "Создавайте приложения для iOS и Android с использованием современных технологий.",
+                duration: "5-7 месяцев",
+                skills: ["React Native/Flutter", "Native Development", "UI/UX для мобильных", "App Store публикация"],
+                salary: "от 90,000 ₽",
+                demand: "Стабильный"
+            }
+        };
+
+        function showPathwayDetails(pathway) {
+            const details = pathwayDetails[pathway];
+            if (!details) return;
+
+            document.getElementById('pathwayModalTitle').textContent = details.title;
+            document.getElementById('pathwayModalContent').innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Описание</h6>
+                        <p>${details.description}</p>
+                        
+                        <h6>Продолжительность</h6>
+                        <p>${details.duration}</p>
+                        
+                        <h6>Навыки которые вы получите:</h6>
+                        <ul>
+                            ${details.skills.map(skill => `<li>${skill}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6>Статистика рынка</h6>
+                                <div class="mb-3">
+                                    <strong>Средняя зарплата:</strong>
+                                    <div class="text-success">${details.salary}</div>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Спрос на рынке:</strong>
+                                    <div class="text-warning">${details.demand}</div>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Рекомендуется для:</strong>
+                                    <div>Начинающих с базовыми знаниями программирования</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const modal = new bootstrap.Modal(document.getElementById('pathwayModal'));
+            modal.show();
+        }
+
+        function startPathway(pathway) {
+            if (confirm(`Вы уверены, что хотите начать путь "${pathwayDetails[pathway].title}"?`)) {
+                // Сохраняем выбор пользователя
+                const user = JSON.parse(localStorage.getItem('user'));
+                if (user) {
+                    user.currentPathway = pathway;
+                    localStorage.setItem('user', JSON.stringify(user));
+                }
+                
+                alert(`Отлично! Вы начали путь "${pathwayDetails[pathway].title}". Перенаправляем к первому модулю...`);
+                window.location.href = 'challenges.html';
+            }
+        }
+
+        function confirmPathwaySelection() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('pathwayModal'));
+            modal.hide();
+            alert('Путь обучения успешно выбран! Теперь вы можете начать обучение.');
+        }
+
+        // Взаимодействие с модулями
+        document.addEventListener('DOMContentLoaded', function() {
+            const moduleCards = document.querySelectorAll('.module-card');
+            moduleCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    if (!this.classList.contains('completed')) {
+                        window.location.href = 'challenges.html';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

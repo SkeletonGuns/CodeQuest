@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Создание Задачи{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h2 class="text-center mb-4 display-5 fw-bold text-danger">Админ-панель: Создание Задачи</h2>
+            <p class="text-center text-muted lead">Добавьте новое испытание для пользователей, указав все необходимые параметры.</p>
+
+            {% if msg %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i> {{ msg }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+
+            {% if error %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i> {{ error }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+
+            <form method="POST" action="/admin/tasks/create" class="bg-white p-5 rounded-4 shadow-lg border">
+
+                <div class="mb-3">
+                    <label for="title" class="form-label fw-bold">Название Задачи</label>
+                    <input type="text" class="form-control" id="title" name="title" required placeholder="Например: 'Реверс строки'">
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label fw-bold">Описание Задачи</label>
+                    <textarea class="form-control" id="description" name="description" rows="4" placeholder="Подробное описание задачи, которую должен решить пользователь."></textarea>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="xp_reward" class="form-label fw-bold">Награда XP</label>
+                        <input type="number" class="form-control" id="xp_reward" name="xp_reward" value="100" required min="10">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="language" class="form-label fw-bold">Язык Программирования</label>
+                        <select class="form-select" id="language" name="language" required>
+                            <option value="Python">Python</option>
+                            <option value="JavaScript">JavaScript</option>
+                            <option value="Java">Java</option>
+                            <option value="C++">C++</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="category" class="form-label fw-bold">Сложность</label>
+                    <input type="text" class="form-control" id="category" name="difficulty" value="Базовый" required placeholder="Например: 'Массивы', 'Циклы', 'API'">
+                </div>
+
+                <div class="mb-4">
+                    <label for="test_cases" class="form-label fw-bold">Тестовые Кейсы (JSON/Текст)</label>
+                    <textarea class="form-control" id="test_cases" name="test_cases" rows="6" required placeholder='JSON-структура для проверки решения (в будущем). Например: [{"input": "abc", "expected": "cba"}]'></textarea>
+                    <div class="form-text">Это поле будет использоваться для автоматической проверки решений.</div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-danger btn-lg">
+                        <i class="fas fa-save me-2"></i> Создать и опубликовать задачу
+                    </button>
+                    <a href="/profile" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i> Вернуться в профиль
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+{% endblock %}
+

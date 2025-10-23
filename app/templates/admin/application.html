@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Заявки на регистрацию</h2>
+<a href="/profile" class="btn btn-sm btn-secondary mb-3">← Назад</a>
+
+{% for app in apps %}
+<div class="card mb-2">
+    <div class="card-body">
+        <h5>{{ app.nickname }} ({{ app.name }})</h5>
+        <p>{{ app.email }}</p>
+        <form method="post" action="/admin/approve/{{ app.id }}" style="display:inline;">
+            <button class="btn btn-success btn-sm">Одобрить</button>
+        </form>
+    </div>
+</div>
+{% endfor %}
+
+{% if not apps %}
+<p>Нет заявок</p>
+{% endif %}
+{% endblock %}

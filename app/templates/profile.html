@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeQuest - Мой профиль</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles/main.css">
+    <style>
+        .profile-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 4rem 0 2rem;
+            margin-top: 76px;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid white;
+            object-fit: cover;
+        }
+
+        .profile-stats {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .progress-ring-circle {
+            opacity: 0.3;
+        }
+
+        .progress-ring-progress {
+            transition: stroke-dashoffset 0.5s ease;
+        }
+
+        .activity-item {
+            padding: 1rem;
+            border-left: 4px solid var(--primary);
+            margin-bottom: 0.5rem;
+            background: white; /* Изменено на белый */
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            transition: var(--transition);
+        }
+
+        .activity-item:hover {
+            background: #f8f9fa; /* Светло-серый при наведении */
+            transform: translateX(8px);
+        }
+
+        .activity-item h6 {
+            color: var(--dark) !important; /* Черный текст */
+        }
+
+        .activity-item p {
+            color: var(--gray-dark) !important; /* Темно-серый текст */
+        }
+
+        .activity-item small {
+            color: var(--gray) !important; /* Серый текст */
+        }
+
+        .badge-progress {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .badge-progress-bar {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 4px;
+        }
+
+        .achievement-large {
+            text-align: center;
+            padding: 1.5rem;
+            background: white; /* Изменено на белый */
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            height: 100%;
+        }
+
+        .achievement-large:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .achievement-large h6 {
+            color: var(--dark) !important; /* Черный текст */
+        }
+
+        .achievement-large p {
+            color: var(--gray-dark) !important; /* Темно-серый текст */
+        }
+
+        .edit-profile-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: var(--primary);
+            color: white;
+            border: 2px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .skill-meter {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 5px 0;
+            overflow: hidden;
+        }
+
+        .skill-level {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 5px;
+        }
+
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .gamification-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        /* Стили для ежедневного вызова */
+        .daily-challenge {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(239, 68, 68, 0.1));
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .daily-challenge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(245, 158, 11, 0.05), transparent);
+        }
+
+        /* Стили для нового футера как в главной странице */
+        .footer-custom {
+            background: var(--darker);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4rem 0 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-nav a {
+            color: var(--light) !important;
+            opacity: 0.9;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .footer-nav a:hover {
+            opacity: 1;
+            color: white !important;
+            text-decoration: underline !important;
+        }
+
+        .footer-social .btn-glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: var(--transition);
+        }
+
+        .footer-social .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-code me-2"></i>CodeQuest
+            </a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/profile">Профиль</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <form method="post" action="/logout" style="display: inlane;">
+                    <button type="sybmit" class="btn btn-outline-light me-2">
+                        <i class="fas fa-sign-out-alt me-2"></i>Выйти
+                    </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Заголовок профиля -->
+    <div class="profile-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-2 text-center position-relative">
+                    {% set avatar_src = user.avatar if user.avatar else 'https://placehold.co/150x150/0d6efd/ffffff?text=' + user.name[0] %}
+                    <img src="{{ avatar_src }}" alt="Аватар пользователя" class="profile-avatar" id="profileAvatar">
+                    <input type="file" id="avatarInput" name="file" accept="image/*" style="display: none;" />
+
+                    <button class="btn edit-profile-btn" onclick="document.getElementById('avatarInput').click()">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <h1 id="profileName">{{ user.name }} {{ user.last_name if user.last_name else '' }}</h1>
+                    <p class="lead mb-2" id="profileTitle">{{ 'Админ' if user.role == 'admin' else 'Студент CodeQuest' }}</p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <span><i class="fas fa-medal text-warning me-1"></i> <span id="achievementsCount">0</span> достижений</span>
+                        <!-- ТУТ НУЖНО БУДЕТ ДОБАВИТЬ ПОЛЯ !!!! БЕК ТЫ МЕНЯ СЛЫШИШЬ!!!--->
+                        <span><i class="fas fa-fire text-danger me-1"></i> <span id="streakDays">0</span> дней подряд</span>
+                        <span><i class="fas fa-trophy text-light me-1"></i> #<span id="rankPosition">999</span> в рейтинге</span>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+
+                    {% set xp_to_next_level = 1000 %}
+                    {% set current_level_xp = user.total_xp % xp_to_next_level %}
+                    {% set progress_percent = (current_level_xp / xp_to_next_level) * 100 %}
+                    <div class="gamification-card">
+                        <div class="progress-ring mx-auto mb-3">
+                            <svg width="120" height="120">
+                                <circle class="progress-ring-circle" stroke="white" stroke-width="8" fill="transparent" r="52" cx="60" cy="60"></circle>
+
+                                <!-- Заполнение поля --->
+                                <circle class="progress-right-progress"
+                                        stroke="#00008B"
+                                        stroke-width="8"
+                                        fill="transparent"
+                                        r="52"
+                                        cx="60"
+                                        cy="60"
+                                        stroke-dasharray="{{ (2 * 3.1416 * 52) | round(2) }}"
+                                        stroke-dashoffset="{{ (2 * 3.1416 * 52 * (1 - progress_percent / 100)) | round(2) }}"
+                                        transform="rotate(-90 60 60)">
+                                </circle>
+                            </svg>
+                            <div class="position-absolute top-50 start-50 translate-middle text-white">
+                                <h3 class="mb-0" id="levelProgress">{{ progress_percent | round(0) }}%</h3>
+                            </div>
+                        </div>
+                        <h4 class="text-white">Уровень <span id="userLevel">{{ user.level }}</span></h4>
+                        <p class="text-white mb-0">Опыт: <span id="userXP">{{ current_level_xp }}</span>/{{ xp_to_next_level }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="container my-5">
+        <!-- Ежедневный вызов -->
+        <div class="daily-challenge animate-pulse-glow">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="text-warning mb-2">
+                        <i class="fas fa-bolt me-2"></i>Ежедневный вызов
+                    </h4>
+                    <p class="opacity-90 mb-3">
+                        Решите сегодняшнюю задачу и получите бонусные очки опыта!
+                    </p>
+                    <div class="challenge-timer h5 text-warning">
+                        <i class="fas fa-clock me-2"></i>
+                        <span id="dailyTimer">23:59:59</span>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <a href="/challenges" class="btn btn-warning btn-lg">
+                        <i class="fas fa-play me-2"></i>Принять вызов
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Левая колонка - Статистика и активность -->
+            <div class="col-lg-8">
+                <!-- Статистика обучения -->
+                <div class="profile-stats">
+                    <h4 class="section-title"> Статистика обучения</h4>
+                    <div class="row text-center">
+                        <div class="col-md-3 mb-3">
+                            <div class="stats-number text-primary" id="totalHours">0</div>
+                            <p class="mb-0 text-light">Часов обучения</p>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="stats-number text-success" id="solvedTasks">0</div>
+                            <p class="mb-0 text-light">Решенных задач</p>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="stats-number text-warning" id="completedCourses">0</div>
+                            <p class="mb-0 text-light">Пройденных курсов</p>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="stats-number text-info" id="helpGiven">0</div>
+                            <p class="mb-0 text-light">Помощи оказано</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Недавняя активность -->
+                <div class="profile-stats">
+                    <h4 class="section-title"> Недавняя активность</h4>
+                    <div id="recentActivity">
+                        <div class="activity-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Добро пожаловать в CodeQuest!</h6>
+                                    <p class="mb-0">Начните своё обучение</p>
+                                </div>
+                                <small>Только что</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Навыки -->
+                <div class="profile-stats">
+                    <h4 class="section-title"> Мои навыки</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between text-light">
+                                    <span>HTML/CSS</span>
+                                    <span>0%</span>
+                                </div>
+                                <div class="skill-meter">
+                                    <div class="skill-level" style="width: 0%" id="htmlSkill"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between text-light">
+                                    <span>JavaScript</span>
+                                    <span>0%</span>
+                                </div>
+                                <div class="skill-meter">
+                                    <div class="skill-level" style="width: 0%" id="jsSkill"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between text-light">
+                                    <span>Python</span>
+                                    <span>0%</span>
+                                </div>
+                                <div class="skill-meter">
+                                    <div class="skill-level" style="width: 0%" id="pythonSkill"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between text-light">
+                                    <span>React</span>
+                                    <span>0%</span>
+                                </div>
+                                <div class="skill-meter">
+                                    <div class="skill-level" style="width: 0%" id="reactSkill"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Правая колонка - Достижения и настройки -->
+            <div class="col-lg-4">
+                <!-- Достижения -->
+                <div class="profile-stats">
+                    <h4 class="section-title"> Мои достижения</h4>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <div class="achievement-large">
+                                <div class="achievement-icon text-warning mb-2">
+                                    <i class="fas fa-rocket fa-2x"></i>
+                                </div>
+                                <h6>Первый шаг</h6>
+                                <p class="small mb-2">Заверши первый урок</p>
+                                <span class="badge bg-secondary">Заблокировано</span>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="achievement-large">
+                                <div class="achievement-icon text-muted mb-2">
+                                    <i class="fas fa-code fa-2x"></i>
+                                </div>
+                                <h6>Начинающий кодер</h6>
+                                <p class="small mb-2">Реши 10 задач</p>
+                                <span class="badge bg-secondary">Заблокировано</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-primary w-100 mt-3" onclick="showAllAchievements()">
+                        Все достижения
+                    </button>
+                </div>
+
+                <!-- Быстрые настройки -->
+                <div class="profile-stats">
+                    <h5 class="section-title"> Настройки профиля</h5>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" onclick="editProfile()">
+                            <i class="fas fa-edit me-2"></i>Редактировать профиль
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="changePassword()">
+                            <i class="fas fa-key me-2"></i>Сменить пароль
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="notificationSettings()">
+                            <i class="fas fa-bell me-2"></i>Настройки уведомлений
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Цели -->
+                <div class="profile-stats">
+                    <h5 class="section-title"> Мои цели</h5>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-light">Изучить основы</span>
+                            <span class="badge bg-primary">1 неделя</span>
+                        </div>
+                        <div class="progress" style="height: 8px; background: rgba(255,255,255,0.1);">
+                            <div class="progress-bar" style="width: 10%"></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-primary w-100" onclick="setNewGoal()">
+                        Добавить цель
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Футер как в главной странице -->
+    <footer class="footer-custom">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-code me-2"></i>CodeQuest
+                    </h5>
+                    <p class="opacity-75">
+                        Премиум платформа для обучения программированию через геймификацию.
+                        Превращаем сложное в увлекательное.
+                    </p>
+                    <div class="d-flex gap-3 footer-social">
+                        <a href="#" class="btn btn-glass btn-sm">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="btn btn-glass btn-sm">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="btn btn-glass btn-sm">
+                            <i class="fab fa-discord"></i>
+                        </a>
+                        <a href="#" class="btn btn-glass btn-sm">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h6 class="mb-3">Навигация</h6>
+                    <ul class="list-unstyled footer-nav">
+                        <li class="mb-2"><a href="index.html" class="text-decoration-none">Главная</a></li>
+                        <li class="mb-2"><a href="pathways.html" class="text-decoration-none">Обучение</a></li>
+                        <li class="mb-2"><a href="challenges.html" class="text-decoration-none">Практика</a></li>
+                        <li class="mb-2"><a href="community.html" class="text-decoration-none">Сообщество</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h6 class="mb-3">Ресурсы</h6>
+                    <ul class="list-unstyled footer-nav">
+                        <li class="mb-2"><a href="knowledge.html" class="text-decoration-none">База знаний</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none">Блог</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none">Документация</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none">Поддержка</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h6 class="mb-3">Оставайтесь в курсе</h6>
+                    <p class="opacity-75 small mb-3">
+                        Подпишитесь на рассылку для получения новых задач и обновлений
+                    </p>
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="Ваш email">
+                        <button class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4 opacity-25">
+            <div class="text-center">
+                <p class="mb-0 opacity-75">
+                    &copy; 2025 CodeQuest. Сделано с ❤️ для разработчиков
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Модальное окно редактирования профиля -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content glass">
+                <div class="modal-header">
+                    <h5 class="modal-title text-light">Редактирование профиля</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="profileForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editName" class="form-label text-light">Имя</label>
+                                    <input type="text" class="form-control" id="editName">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editTitle" class="form-label text-light">Должность/Специализация</label>
+                                    <input type="text" class="form-control" id="editTitle" placeholder="Например: Frontend разработчик">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editBio" class="form-label text-light">О себе</label>
+                                    <textarea class="form-control" id="editBio" rows="4" placeholder="Расскажите о себе..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-light">Уровень опыта</label>
+                            <select class="form-select" id="editExperience">
+                                <option value="beginner">Начинающий</option>
+                                <option value="intermediate">Средний</option>
+                                <option value="advanced">Продвинутый</option>
+                                <option value="expert">Эксперт</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" onclick="saveProfile()">Сохранить изменения</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+
+        // --- ЛОГИКА ВЫХОДА (ИСПРАВЛЕНО: использует POST-запрос) ---
+
+        // 1. Показывает модальное окно выхода при нажатии на кнопку в навигации
+        function logout() {
+            const logoutModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('logoutConfirmModal'));
+            logoutModal.show();
+        }
+
+        // 2. Выполняет действия выхода после подтверждения из модального окна
+        function confirmLogout() {
+            // Скрываем модальное окно
+            const logoutModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('logoutConfirmModal'));
+            logoutModal.hide();
+
+            // Очищаем локальные данные пользователя
+            localStorage.removeItem('codequest_current_user');
+
+            // Отправляем POST-запрос на бэкенд для удаления HTTP-Only cookie
+            fetch('/logout', { // <--- ИСПОЛЬЗУЕМ POST и /logout
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => {
+                // Если запрос успешен (статус 200), или даже 401/403,
+                // нас интересует, что cookie на стороне сервера удален.
+                showNotification('Вы успешно вышли из системы', 'success');
+                setTimeout(() => {
+                    window.location.href = '/index'; // Перенаправляем на главную
+                }, 1000);
+            })
+            .catch(error => {
+                // Если произошла ошибка сети/CORS, мы все равно вышли локально и перенаправим.
+                console.error('Ошибка при выходе (Logout fetch error):', error);
+                showNotification('Произошла ошибка сети. Выход выполнен локально.', 'warning');
+                setTimeout(() => {
+                    window.location.href = '/index';
+                }, 1000);
+            });
+        }
+
+        // Когда пользователь выбирает файл
+document.getElementById('avatarInput').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Показать индикатор загрузки (опционально)
+    const btn = document.querySelector('.edit-profile-btn');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+    // Создаём FormData
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // Отправляем POST-запрос
+    fetch('/upload-avatar', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (response.ok) {
+            // Успешно: обновить аватар на странице без перезагрузки
+            const avatarImg = document.getElementById('profileAvatar'); // ← должен быть id="userAvatar"
+            const timestamp = new Date().getTime(); // чтобы сбросить кэш
+            avatarImg.src = avatarImg.src.split('?')[0] + '?t=' + timestamp;
+        } else {
+            alert('Ошибка при загрузке аватара.');
+        }
+    })
+    .catch(() => {
+        alert('Произошла ошибка соединения.');
+    })
+    .finally(() => {
+        // Восстановить кнопку
+        btn.innerHTML = originalHTML;
+        // Очистить input (чтобы можно было выбрать тот же файл снова)
+        event.target.value = '';
+    });
+});
+
+        // Таймер ежедневного вызова
+        function startDailyTimer() {
+            function updateTimer() {
+                const now = new Date();
+                const endOfDay = new Date();
+                endOfDay.setHours(23, 59, 59, 999);
+
+                const diff = endOfDay - now;
+
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                document.getElementById('dailyTimer').textContent =
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+
+        function changeAvatar() {
+            const newAvatar = prompt('Введите URL нового аватара:');
+            if (newAvatar) {
+                document.getElementById('profileAvatar').src = newAvatar;
+                // Сохраняем в localStorage
+                const user = JSON.parse(localStorage.getItem('codequest_current_user'));
+                user.avatar = newAvatar;
+                localStorage.setItem('codequest_current_user', JSON.stringify(user));
+                showNotification('Аватар успешно изменен!', 'success');
+            }
+        }
+
+        function editProfile() {
+            const modal = new bootstrap.Modal(document.getElementById('editProfileModal'));
+            modal.show();
+        }
+
+        function saveProfile() {
+            const user = JSON.parse(localStorage.getItem('codequest_current_user'));
+            if (user) {
+                user.name = document.getElementById('editName').value;
+                user.title = document.getElementById('editTitle').value;
+                user.bio = document.getElementById('editBio').value;
+                user.experience = document.getElementById('editExperience').value;
+
+                localStorage.setItem('codequest_current_user', JSON.stringify(user));
+
+                // Обновляем данные на странице
+                loadProfileData(user);
+
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+                modal.hide();
+
+                showNotification('Профиль успешно обновлен!', 'success');
+            }
+        }
+
+        function changePassword() {
+            const currentPass = prompt('Введите текущий пароль:');
+            if (currentPass) {
+                const newPass = prompt('Введите новый пароль:');
+                if (newPass) {
+                    const confirmPass = prompt('Подтвердите новый пароль:');
+                    if (newPass === confirmPass) {
+                        showNotification('Пароль успешно изменен!', 'success');
+                    } else {
+                        showNotification('Пароли не совпадают!', 'error');
+                    }
+                }
+            }
+        }
+
+        function notificationSettings() {
+            showNotification('Настройки уведомлений открыты', 'info');
+        }
+
+        function showAllAchievements() {
+            showNotification('Открывается страница всех достижений', 'info');
+        }
+
+        function setNewGoal() {
+            const goal = prompt('Введите новую цель:');
+            if (goal) {
+                const deadline = prompt('Срок выполнения (например: 2 недели):');
+                if (deadline) {
+                    showNotification(`Цель "${goal}" добавлена! Срок: ${deadline}`, 'success');
+                }
+            }
+        }
+
+        // Уведомления
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'error' ? 'danger' : type} position-fixed`;
+            notification.style.cssText = `
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255,255,255,0.1);
+            `;
+            notification.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+
+
+        // Обновляем навигацию при скролле
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                navbar.classList.add('navbar-scrolled');
+            } else {
+                navbar.classList.remove('navbar-scrolled');
+            }
+        });
+    </script>
+</body>
+</html>

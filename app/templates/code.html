@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Runner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        select, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 200px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid #ddd;
+            white-space: pre-wrap;
+            font-family: monospace;
+            min-height: 50px;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>💻 Запуск кода онлайн</h1>
+
+    <label for="language">Выберите язык:</label>
+    <select id="language">
+        <option value="python">Python</option>
+        <option value="javascript">JavaScript</option>
+        <option value="java">Java</option>
+        <option value="cpp">C++</option>
+    </select>
+
+    <label for="code">Введите код:</label>
+    <textarea id="codeArea" placeholder="Например: print('Hello, World!')">print("Hello, World!")</textarea>
+
+    <button onclick="runCode()">▶️ Запустить код</button>
+
+    <div id="output"></div>
+
+    <script>
+        async function runCode() {
+            const code = document.getElementById('codeArea').value;
+            const language = document.getElementById('language').value;
+            const outputDiv = document.getElementById('output');
+
+            outputDiv.textContent = 'Выполняется...';
+            outputDiv.className = '';
+
+            try {
+                const response = await fetch('/api/run-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ code, language })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    outputDiv.textContent = data.output || '(Нет вывода)';
+                } else {
+                    outputDiv.textContent = '❌ Ошибка: ' + (data.error || 'Неизвестная ошибка');
+                    outputDiv.className = 'error';
+                }
+            } catch (err) {
+                outputDiv.textContent = '❌ Ошибка сети: ' + err.message;
+                outputDiv.className = 'error';
+            }
+        }
+    </script>
+</body>
+</html>

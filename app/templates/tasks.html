@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Задачи{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-light">Задачи</h1>
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">Доступные задачи</div>
+                <div class="list-group list-group-flush" id="taskList">
+                    {% if tasks %}
+                        {% for task in tasks %}
+                        <a href="#" class="list-group-item list-group-item-action"
+                           onclick="showTask({{ task.id }}); return false;">
+                            <strong>{{ task.title }}</strong>
+                            <br>
+                            <small>{{ task.language }} • {{ task.xp_reward }} XP</small>
+                            {% if task.is_completed %}
+                                <span class="badge bg-success ms-2">✅</span>
+                            {% endif %}
+                        </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="p-3 text-muted">Нет задач</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 id="taskTitle">Выберите задачу</h5>
+                </div>
+                <div class="card-body">
+                    <div id="taskDesc">Описание появится здесь</div>
+                    <textarea id="codeArea" class="form-control mt-3" rows="10"># Ваш код</textarea>
+                    <button class="btn btn-success mt-2" onclick="submitSolution()">Проверить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Передаём задачи из Python в JS
+    const tasks = {{ tasks | tojson | safe }};
+
+    function showTask(id) {
+        const task = tasks.find(t => t.id === id);
+        if (!task) return;
+
+        document.getElementById('taskTitle').innerText = task.title;
+        document.getElementById('taskDesc').innerHTML = `
+            <p>${task.description || ''}</p>
+            <p><strong>Язык:</strong> ${task.language} | <strong>XP:</strong> ${task.xp_reward}</p>
+        `;
+    }
+
+    function submitSolution() {
+        alert('Функция отправки решения ещё не подключена к API');
+    }
+</script>
+{% endblock %}

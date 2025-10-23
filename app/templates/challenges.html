@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeQuest - Задачи и квесты</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles/main.css">
+    <style>
+        /* Главный фон как был - темный градиент */
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+            color: var(--light);
+        }
+
+        .challenge-card {
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+            background: white;
+            color: var(--dark);
+        }
+
+        .challenge-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15);
+            background: white;
+        }
+
+        .difficulty-easy { border-left-color: var(--success); }
+        .difficulty-medium { border-left-color: var(--warning); }
+        .difficulty-hard { border-left-color: var(--danger); }
+
+        .code-runner {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        /* Белый текст для кнопки "Назад в кабинет" без границы */
+        .nav-link-back {
+            color: white !important;
+            border-radius: var(--border-radius);
+            padding: 0.5rem 1rem !important;
+            transition: var(--transition);
+            background: transparent;
+            border: none;
+        }
+
+        .nav-link-back:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            color: white !important;
+        }
+
+        /* Стили для нового футера как в главной странице */
+        .footer-custom {
+            background: var(--darker);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4rem 0 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-nav a {
+            color: var(--light) !important;
+            opacity: 0.9;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .footer-nav a:hover {
+            opacity: 1;
+            color: white !important;
+            text-decoration: underline !important;
+        }
+
+        .footer-social .btn-glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: var(--transition);
+        }
+
+        .footer-social .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Карточки с белым фоном */
+        .card {
+            background: white !important;
+            color: var(--dark) !important;
+            border: 1px solid rgba(99, 102, 241, 0.1) !important;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08) !important;
+        }
+
+        .card-header {
+            background: white !important;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.1) !important;
+            color: var(--dark) !important;
+        }
+
+        /* Текстовые цвета для белых карточек */
+        .card h5, .card h6 {
+            color: var(--darker) !important;
+        }
+
+        .card p, .card small {
+            color: var(--gray-dark) !important;
+        }
+
+        /* Заголовки страницы - белый текст на темном фоне */
+        .section-title {
+            color: var(--light) !important;
+        }
+
+        .lead {
+            color: var(--gray-light) !important;
+        }
+
+        /* Стили для списка задач */
+        .list-group-item {
+            background: white !important;
+            color: var(--dark) !important;
+            border-color: rgba(99, 102, 241, 0.1) !important;
+        }
+
+        .list-group-item:hover {
+            background: rgba(99, 102, 241, 0.02) !important;
+        }
+
+        /* Стили для редактора кода */
+        .code-editor {
+            background: #1a1f2e;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            color: white;
+        }
+
+        .form-select {
+            background: white;
+            color: var(--dark);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Стили для ИИ-помощника */
+        .ai-assistant {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-icon {
+            font-size: 3rem;
+            opacity: 0.3;
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Интерактивные элементы */
+        .btn-outline-primary {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-light {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--dark);
+        }
+
+        .btn-light:hover {
+            background: white;
+            color: var(--dark);
+        }
+
+        /* Алерты */
+        .alert-info {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.2);
+            color: var(--dark);
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-code me-2"></i>CodeQuest
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link nav-link-back" href="/profile">
+                    <i class="fas fa-arrow-left me-2"></i>Назад в кабинет
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Заголовок -->
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="section-title">Задачи и квесты</h1>
+                <p class="lead">Решайте задачи, зарабатывайте опыт и открывайте новые уровни</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="container mb-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Язык программирования</label>
+                                <select class="form-select">
+                                    <option>Все языки</option>
+                                    <option>Python</option>
+                                    <option>JavaScript</option>
+                                    <option>HTML/CSS</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Сложность</label>
+                                <select class="form-select">
+                                    <option>Любая сложность</option>
+                                    <option>Легкая</option>
+                                    <option>Средняя</option>
+                                    <option>Сложная</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Статус</label>
+                                <select class="form-select">
+                                    <option>Все задачи</option>
+                                    <option>Не начатые</option>
+                                    <option>В процессе</option>
+                                    <option>Завершенные</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">&nbsp;</label>
+                                <button class="btn btn-primary w-100">Применить фильтры</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Список задач -->
+    <div class="container">
+        <div class="row">
+            <!-- Левая колонка - список задач -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Доступные задачи</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush" id="taskListContainer">
+    <!-- Сюда будут вставляться задачи -->
+</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Правая колонка - редактор кода -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0" id="challengeTitle">Выберите задачу</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="challengeDescription">
+                            <p class="text-muted">Выберите задачу из списка слева, чтобы начать решение</p>
+                        </div>
+
+                        <div class="code-runner" style="display: none;" id="codeEditor">
+                            <div class="mb-3">
+                                <label class="form-label">Выберите язык:</label>
+                                <select class="form-select" id="languageSelect">
+                                    <option>Python</option>
+                                    <option>JavaScript</option>
+                                    <option>Java</option>
+                                    <option>C++</option>
+                                </select>
+                            </div>
+
+                            <div class="code-editor mb-3">
+                                <pre><code id="codeArea"># Ваш код здесь</code></pre>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-outline-primary" onclick="runCode()">
+                                    <i class="fas fa-play me-2"></i>Запустить код
+                                </button>
+                                <button class="btn btn-success" onclick="submitSolution()">
+                                    <i class="fas fa-check me-2"></i>Проверить решение
+                                </button>
+                            </div>
+
+                            <div class="mt-3" id="output" style="display: none;">
+                                <h6>Результат:</h6>
+                                <div class="bg-dark text-light p-3 rounded" id="outputContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Подсказки и помощь -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">ИИ-помощник</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="ai-assistant">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6><i class="fas fa-robot me-2"></i>CodeBot</h6>
+                                    <p class="mb-2">Застряли на задаче? Я могу помочь с подсказками!</p>
+                                    <button class="btn btn-light btn-sm" onclick="getHint()">Получить подсказку</button>
+                                </div>
+                                <div class="col-md-4 position-relative">
+                                    <div class="ai-icon">
+                                        <i class="fas fa-robot"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Футер как в главной странице -->
+    <footer class="footer-custom">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-code me-2"></i>CodeQuest
+                    </h5>
+                    <p class="opacity-75">
+                        Премиум платформа для обучения программированию через геймификацию.
+                        Превращаем сложное в увлекательное.
+                    </p>
+                    <div class="d-flex gap-3 footer-social">
+                        <a href="#" class="btn btn-glass btn-sm">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="btn btn-glass btn-sm">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="btn btn-glass btn-sm">
+                            <i class="fab fa-discord"></i>
+                        </a>
+                        <a href="#" class="btn btn-glass btn-sm">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h6 class="mb-3">Навигация</h6>
+                    <ul class="list-unstyled footer-nav">
+                        <li class="mb-2"><a href="/" class="text-decoration-none">Главная</a></li>
+                        <li class="mb-2"><a href="/pathways" class="text-decoration-none">Обучение</a></li>
+                        <li class="mb-2"><a href="/challenges" class="text-decoration-none">Практика</a></li>
+                        <li class="mb-2"><a href="/community" class="text-decoration-none">Сообщество</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h6 class="mb-3">Ресурсы</h6>
+                    <ul class="list-unstyled footer-nav">
+                        <li class="mb-2"><a href="/knowledge" class="text-decoration-none">База знаний</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none">Блог</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none">Документация</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none">Поддержка</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h6 class="mb-3">Оставайтесь в курсе</h6>
+                    <p class="opacity-75 small mb-3">
+                        Подпишитесь на рассылку для получения новых задач и обновлений
+                    </p>
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="Ваш email">
+                        <button class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4 opacity-25">
+            <div class="text-center">
+                <p class="mb-0 opacity-75">
+                    &copy; 2025 CodeQuest. Сделано с ❤️ для разработчиков
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+let challenges = {}; // Объявляем пустой объект
+let currentChallenge = null;
+
+// Функция для корректного отображения начального кода в зависимости от языка
+function getInitialCode(language) {
+    switch (language.toLowerCase()) {
+        case 'python':
+            return 'def solve():\n    # Ваш код здесь\n    # Например:\n    # print("Hello from Python")\n\nsolve()';
+        case 'javascript':
+            return 'function solve() {\n    // Ваш код здесь\n    // Например:\n    // console.log("Hello from JavaScript");\n}\n\nsolve();';
+        case 'java':
+            return 'class Main {\n    public static void main(String[] args) {\n        // Ваш код здесь\n        // Например:\n        // System.out.println("Hello from Java");\n    }\n}';
+        case 'c++':
+            return '#include <iostream>\n\nvoid solve() {\n    // Ваш код здесь\n    // Например:\n    // std::cout << "Hello from C++" << std::endl;\n}\n\nint main() {\n    solve();\n    return 0;\n}';
+        default:
+            return '// Ваш код здесь';
+    }
+}
+
+function showChallenge(id) {
+    const challenge = challenges[id]; // теперь берём из динамического объекта
+    if (!challenge) {
+        alert('Задача не найдена!');
+        return;
+    }
+
+    currentChallenge = id;
+    document.getElementById('challengeTitle').textContent = challenge.title;
+    // Используем challenge.test_cases как массив (не нужно JSON.parse)
+    document.getElementById('challengeDescription').innerHTML = `
+        <h6>Описание задачи:</h6>
+        <p>${challenge.description}</p>
+        <div class="alert alert-info">
+            <strong>Примеры:</strong><br>
+            ${challenge.test_cases.map(test => `<code>${test.input}</code> &rarr; ${test.expected}`).join('<br>')}
+        </div>
+    `;
+
+    const codeArea = document.getElementById('codeArea');
+    const languageSelect = document.getElementById('languageSelect');
+
+    document.getElementById('codeEditor').style.display = 'block';
+
+    const lang = challenge.language.charAt(0).toUpperCase() + challenge.language.slice(1);
+    languageSelect.value = lang in languageSelect.options ? lang : 'Python';
+
+    codeArea.textContent = challenge.initial_code || getInitialCode(challenge.language);
+}
+
+async function runCode() {
+    const codeArea = document.getElementById('codeArea');
+    const languageSelect = document.getElementById('languageSelect');
+    const output = document.getElementById('output');
+    const outputContent = document.getElementById('outputContent');
+    const runButton = document.querySelector('.btn-outline-primary');
+
+    const code = codeArea.textContent;
+    const language = languageSelect.value.toLowerCase();
+
+    // Показываем индикатор загрузки
+    output.style.display = 'block';
+    outputContent.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Запуск кода...';
+    runButton.disabled = true;
+
+    try {
+        const response = await fetch('/api/run-code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ code: code, language: language }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            // Успешный ответ
+            outputContent.textContent = result.output || 'Код выполнен, но не дал вывода (или вывод пустой).';
+            outputContent.style.whiteSpace = 'pre-wrap'; // Для сохранения форматирования
+        } else {
+            // Ошибка со стороны сервера
+            outputContent.textContent = `Ошибка выполнения (${response.status}):\n${result.error || result.output || 'Неизвестная ошибка'}`;
+            outputContent.classList.add('bg-danger', 'text-light');
+            outputContent.classList.remove('bg-dark');
+        }
+
+    } catch (error) {
+        // Ошибка сети или другая ошибка на клиенте
+        outputContent.textContent = `Ошибка сети: Не удалось подключиться к серверу. ${error.message}`;
+        outputContent.classList.add('bg-danger', 'text-light');
+        outputContent.classList.remove('bg-dark');
+    } finally {
+        runButton.disabled = false;
+        // Возвращаем стили по умолчанию
+        if (outputContent.classList.contains('bg-danger')) {
+            outputContent.classList.remove('bg-danger', 'text-light');
+            outputContent.classList.add('bg-dark');
+        }
+    }
+}
+
+async function submitSolution() {
+    if (!currentChallenge) {
+        alert('Сначала выберите задачу!');
+        return;
+    }
+
+    const code = document.getElementById('codeArea').textContent;
+    const languageSelect = document.getElementById('languageSelect');
+    const language = languageSelect.value.toLowerCase();
+
+    const task_id = currentChallenge; // ID задачи = ID в БД
+
+    try {
+        const response = await fetch(`/api/tasks/submit/${task_id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ code, language }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert(`✅ ${result.message}`);
+        } else {
+            let errorMsg = result.message || 'Ошибка при проверке решения.';
+            if (result.results) {
+                // Показываем детали тестов (опционально)
+                const details = result.results.map(r => `Тест ${r.test_id}: ${r.message}`).join('\n');
+                errorMsg += '\n\n' + details;
+            }
+            alert(`❌ ${errorMsg}`);
+        }
+    } catch (error) {
+        console.error('Ошибка сети:', error);
+        alert('❌ Не удалось отправить решение на сервер. Проверьте консоль.');
+    }
+}
+
+function getHint() {
+    if (!currentChallenge) {
+        alert('Сначала выберите задачу!');
+        return;
+    }
+
+    const challenge = challenges[currentChallenge];
+    alert(`Подсказка для задачи "${challenge.title}":\n\nПопробуйте разбить задачу на более мелкие части.`);
+}
+
+// ЕДИНСТВЕННЫЙ обработчик DOMContentLoaded
+document.addEventListener('DOMContentLoaded', async () => {
+    const codeArea = document.getElementById('codeArea');
+    // Делаем область редактируемой, если это не настоящий редактор
+    codeArea.setAttribute('contenteditable', 'true');
+    // Устанавливаем начальный код при загрузке
+    codeArea.textContent = getInitialCode('Python');
+
+    try {
+        const tasksResponse = await fetch('/api/tasks'); // ← ВАЖНО: создайте этот эндпоинт!
+        const tasks = await tasksResponse.json();
+
+        // Заполняем глобальный объект challenges
+        for (const task of tasks) {
+            challenges[task.id] = {
+                id: task.id,
+                title: task.title,
+                description: task.description,
+                difficulty: task.difficulty,
+                language: task.language,
+                xp_reward: task.xp_reward,
+                is_completed: task.is_completed,
+                test_cases: Array.isArray(task.test_cases) ? task.test_cases : JSON.parse(task.test_cases || '[]'),
+                initial_code: task.initial_code || getInitialCode(task.language)
+            };
+        }
+
+        // Обновляем список задач в UI
+        updateTaskList();
+
+    } catch (error) {
+        console.error('Ошибка загрузки задач:', error);
+        alert('Не удалось загрузить задачи. Проверьте консоль.');
+    }
+});
+
+function updateTaskList() {
+    const container = document.getElementById('taskListContainer');
+    container.innerHTML = ''; // Очищаем
+
+    for (const id in challenges) {
+        const task = challenges[id];
+        const cardClass = `list-group-item list-group-item-action challenge-card difficulty-${getDifficultyClass(task.difficulty)}`;
+        const completedBadge = task.is_completed ? '<span class="badge bg-success ms-2">Решено</span>' : '';
+
+        const item = `
+            <a href="#" class="${cardClass}" onclick="showChallenge(${id})">
+                <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">${task.title}</h6>
+                    <small class="text-${getDifficultyColor(task.difficulty)}">${task.difficulty}</small>
+                </div>
+                <p class="mb-1">${task.description.substring(0, 60)}...</p>
+                <small>${task.language} • ${task.xp_reward} XP ${completedBadge}</small>
+            </a>
+        `;
+        container.insertAdjacentHTML('beforeend', item);
+    }
+}
+
+function getDifficultyClass(difficulty) {
+    switch (difficulty.toLowerCase()) {
+        case 'easy': return 'easy';
+        case 'medium': return 'medium';
+        case 'hard': return 'hard';
+        default: return 'easy';
+    }
+}
+
+function getDifficultyColor(difficulty) {
+    switch (difficulty.toLowerCase()) {
+        case 'easy': return 'success';
+        case 'medium': return 'warning';
+        case 'hard': return 'danger';
+        default: return 'success';
+    }
+}
+    </script>
+</body>
+</html>

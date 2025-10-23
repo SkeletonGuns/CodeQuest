@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeQuest - Премиум платформа для обучения программированию</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles/main.css">
+    <style>
+        /* Фикс для активной ссылки в навигации */
+        .navbar-nav .nav-link.active {
+            background: transparent !important;
+            color: var(--gray-light) !important;
+        }
+        
+        .navbar-nav .nav-link.active::before {
+            display: none !important;
+        }
+        
+        .navbar-nav .nav-link.active:hover {
+            color: white !important;
+            background: rgba(99, 102, 241, 0.1) !important;
+        }
+        
+        /* Фикс для текста статистики */
+        .hero-stats span {
+            color: var(--light) !important;
+        }
+        
+        /* Новые стили для карточек - бело-прозрачные */
+        .feature-card-premium {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--dark) !important;
+        }
+        
+        .feature-card-premium .text-muted {
+            color: var(--gray-dark) !important;
+        }
+        
+        .feature-card-premium .feature-icon {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .feature-card-premium h4 {
+            color: var(--darker) !important;
+        }
+        
+        /* Фикс для выравнивания бейджей - центрирование по горизонтали */
+        .feature-card-premium .badge-container {
+            margin-top: auto;
+            padding-top: 1rem;
+            min-height: 40px;
+            display: flex;
+            justify-content: center; /* Центрирование по горизонтали */
+            align-items: flex-end; /* Сохраняем положение по вертикали */
+            width: 100%;
+        }
+        
+        .feature-card-premium .badge {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            min-width: 120px; /* Фиксированная ширина для одинакового размера */
+        }
+        
+        /* Фикс для текста в CTA секции - белый цвет */
+        .cta-section .card h2,
+        .cta-section .card p {
+            color: var(--light) !important;
+        }
+        
+        .cta-section .card .opacity-75 {
+            opacity: 0.9 !important;
+        }
+        
+        /* Фикс для навигации в футере - белый цвет */
+        .footer-nav a {
+            color: var(--light) !important;
+            opacity: 0.9;
+            transition: var(--transition);
+        }
+        
+        .footer-nav a:hover {
+            opacity: 1;
+            color: white !important;
+            text-decoration: underline !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-code me-2"></i>CodeQuest
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">Главная</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pathways">Обучение</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/challenges">Практика</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/community">Сообщество</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/knowledge">Ресурсы</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <a href="/login" class="btn btn-primary me-2">
+                        <i class="fas fa-sign-in-alt me-2"></i>Войти
+                    </a>
+                    <a href="/login" class="btn btn-outline-primary">
+                        <i class="fas fa-user-plus me-2"></i>Регистрация
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Герой секция -->
+    <section class="hero-section">
+        <div class="particles-container" id="particles"></div>
+        <div class="container hero-content">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="hero-title animate-slide-up">
+                        Программист
+                        <span class="text-gradient">человек искусства</span>
+                    </h1>
+                    <p class="hero-subtitle animate-fade-in">
+                        CodeQuest превращает обучение в захватывающее приключение. 
+                        Освойте программирование через геймификацию, интерактивные задачи 
+                        и поддержку сообщества.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3 animate-slide-up" style="animation-delay: 0.2s">
+                        <a href="/login" class="btn btn-primary btn-lg">
+                            <i class="fas fa-rocket me-2"></i>Начать путешествие
+                        </a>
+                        <a href="#features" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-play-circle me-2"></i>Смотреть демо
+                        </a>
+                    </div>
+                    <div class="mt-4 d-flex flex-wrap gap-4 hero-stats animate-fade-in" style="animation-delay: 0.4s">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-users text-primary me-2"></i>
+                            <span>10K+ студентов</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-trophy text-warning me-2"></i>
+                            <span>95% успеха</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-clock text-success me-2"></i>
+                            <span>24/7 поддержка</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="position-relative">
+                        <div class="card glass p-4 animate-float" style="animation-delay: 0.3s">
+                            <div class="world-map">
+                                <div class="player-avatar" style="bottom: 40px; left: 100px;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="level-node completed" style="bottom: 90px; left: 40px;">1</div>
+                                <div class="level-node completed" style="bottom: 60px; left: 160px;">2</div>
+                                <div class="level-node completed" style="bottom: 100px; left: 280px;">3</div>
+                                <div class="level-node completed" style="bottom: 50px; left: 400px;">4</div>
+                                <div class="level-node current" style="bottom: 80px; left: 520px;">5</div>
+                                <div class="level-node" style="bottom: 110px; left: 640px;">6</div>
+                            </div>
+                            <div class="text-start">
+                                <h5 class="text-gradient mb-2">Текущий квест: Python</h5>
+                                <div class="progress-bar mb-2">
+                                    <div class="progress-bar-fill" style="width: 65%"></div>
+                                </div>
+                                <div class="d-flex justify-content-between text-sm">
+                                    <span>2450/3000 XP</span>
+                                    <span>65% завершено</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="position-absolute top-0 start-0 w-100 h-100 animate-pulse-glow" style="z-index: -1; border-radius: var(--border-radius-lg);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Возможности -->
+    <section id="features" class="py-5">
+        <div class="container">
+            <div class="row justify-content-center text-center mb-5">
+                <div class="col-lg-8">
+                    <h2 class="section-title reveal">Почему CodeQuest?</h2>
+                    <p class="section-subtitle reveal" style="animation-delay: 0.1s">
+                        Мы создали идеальную экосистему для обучения программированию
+                    </p>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3 reveal">
+                    <div class="card feature-card feature-card-premium h-100">
+                        <div class="feature-icon">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <h4 class="mb-3">Игровая механика</h4>
+                        <p class="text-muted">
+                            Уровни, достижения, квесты и рейтинги превращают обучение в увлекательную игру
+                        </p>
+                        <div class="badge-container">
+                            <span class="badge badge-primary">+300% мотивации</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3 reveal" style="animation-delay: 0.1s">
+                    <div class="card feature-card feature-card-premium h-100">
+                        <div class="feature-icon">
+                            <i class="fas fa-road"></i>
+                        </div>
+                        <h4 class="mb-3">Персональный путь</h4>
+                        <p class="text-muted">
+                            AI создает индивидуальную траекторию обучения на основе ваших целей и прогресса
+                        </p>
+                        <div class="badge-container">
+                            <span class="badge badge-success">Индивидуально</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3 reveal" style="animation-delay: 0.2s">
+                    <div class="card feature-card feature-card-premium h-100">
+                        <div class="feature-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h4 class="mb-3">Практика в реальном времени</h4>
+                        <p class="text-muted">
+                            Встроенная IDE с мгновенной проверкой кода и AI-помощником
+                        </p>
+                        <div class="badge-container">
+                            <span class="badge badge-warning">Интерактивно</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3 reveal" style="animation-delay: 0.3s">
+                    <div class="card feature-card feature-card-premium h-100">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h4 class="mb-3">Живое сообщество</h4>
+                        <p class="text-muted">
+                            Общайтесь, решайте задачи вместе и находите менторов среди опытных разработчиков
+                        </p>
+                        <div class="badge-container">
+                            <span class="badge badge-primary">Поддержка 24/7</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA секция -->
+    <section class="py-5 cta-section">
+        <div class="container">
+            <div class="card gradient text-center py-5 px-3">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <h2 class="display-5 fw-bold mb-4">
+                            Готовы начать свое путешествие в мир программирования?
+                        </h2>
+                        <p class="lead mb-4 opacity-75">
+                            Присоединяйтесь к тысячам студентов, которые уже научились программировать с CodeQuest
+                        </p>
+                        <div class="d-flex flex-wrap gap-3 justify-content-center">
+                            <a href="/login" class="btn btn-primary btn-lg px-5">
+                                <i class="fas fa-user-plus me-2"></i>Создать аккаунт
+                            </a>
+                            <a href="/pathways" class="btn btn-outline-primary btn-lg px-5">
+                                <i class="fas fa-compass me-2"></i>Исследовать пути
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-code me-2"></i>CodeQuest
+                    </h5>
+                    <p class="opacity-75">
+                        Премиум платформа для обучения программированию через геймификацию. 
+                        Превращаем сложное в увлекательное.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="btn btn-glass btn-sm">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="btn btn-glass btn-sm">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="btn btn-glass btn-sm">
+                            <i class="fab fa-discord"></i>
+                        </a>
+                        <a href="#" class="btn btn-glass btn-sm">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h6 class="mb-3">Навигация</h6>
+                    <ul class="list-unstyled footer-nav">
+                        <li class="mb-2"><a href="/" class="text-decoration-none">Главная</a></li>
+                        <li class="mb-2"><a href="/pathways" class="text-decoration-none">Обучение</a></li>
+                        <li class="mb-2"><a href="/challenges" class="text-decoration-none">Практика</a></li>
+                        <li class="mb-2"><a href="/community" class="text-decoration-none">Сообщество</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h6 class="mb-3">Ресурсы</h6>
+                    <ul class="list-unstyled footer-nav">
+                        <li class="mb-2"><a href="/knowledge" class="text-decoration-none">База знаний</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none">Блог</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none">Документация</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none">Поддержка</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h6 class="mb-3">Оставайтесь в курсе</h6>
+                    <p class="opacity-75 small mb-3">
+                        Подпишитесь на рассылку для получения новых задач и обновлений
+                    </p>
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="Ваш email">
+                        <button class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4 opacity-25">
+            <div class="text-center">
+                <p class="mb-0 opacity-75">
+                    &copy; 2025 CodeQuest. Сделано с ❤️ для разработчиков
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Партиклы для героя
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 15;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = Math.random() * 60 + 20;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const delay = Math.random() * 5;
+                const duration = Math.random() * 10 + 10;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}%`;
+                particle.style.top = `${posY}%`;
+                particle.style.animationDelay = `${delay}s`;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.opacity = Math.random() * 0.3 + 0.1;
+                
+                container.appendChild(particle);
+            }
+        }
+
+        // Анимация появления при скролле
+        function revealOnScroll() {
+            const reveals = document.querySelectorAll('.reveal');
+            
+            reveals.forEach(element => {
+                const windowHeight = window.innerHeight;
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < windowHeight - elementVisible) {
+                    element.classList.add('active');
+                }
+            });
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            window.addEventListener('scroll', revealOnScroll);
+            revealOnScroll(); 
+            
+            // Плавная прокрутка для навигации
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        });
+
+        // Изменение навигации при скролле
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                navbar.classList.add('navbar-scrolled');
+            } else {
+                navbar.classList.remove('navbar-scrolled');
+            }
+        });
+    </script>
+</body>
+</html>
