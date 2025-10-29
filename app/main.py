@@ -98,7 +98,7 @@ def challenges(request: Request, user: models.User = Depends(get_current_user)):
 def community(request: Request):
     return templates.TemplateResponse("community.html", {"request": request})
 
-@router.post("/logout")
+@app.post("/logout")
 def logout_route():
     redirect_response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
 
